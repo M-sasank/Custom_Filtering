@@ -58,20 +58,30 @@ def frequency1():
     # read the image
     img = cv2.imread('temp.png')
 
-    # convert the image to grayscale
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # # convert the image to grayscale
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
 
-    # saving the image to a file
-    cv2.imwrite('temp.png', img)
+    # seperating the image into channels
+    b, g, r = cv2.split(img)
 
 
-    # generating the fourier spectrum of the image
-    f = np.fft.fft2(img)
-    fshift = np.fft.fftshift(f)
+    # generating the fourier spectrum of the image for all the channels seperately
+    f1 = np.fft.fft2(b)
+    fshift1 = np.fft.fftshift(f1)
 
-    # taking magnitude spectrum
-    magnitude_spectrum = 20*np.log(np.abs(fshift))
+    f2 = np.fft.fft2(g)
+    fshift2 = np.fft.fftshift(f2)
 
+    f3 = np.fft.fft2(r)
+    fshift3 = np.fft.fftshift(f3)
+
+    # taking magnitude spectrum for all the channels seperately
+    magnitude_spectrum1 = 20*np.log(np.abs(fshift1))
+    magnitude_spectrum2 = 20*np.log(np.abs(fshift2))
+    magnitude_spectrum3 = 20*np.log(np.abs(fshift3))
+
+    # merging the channels back
+    magnitude_spectrum = cv2.merge((magnitude_spectrum1, magnitude_spectrum2, magnitude_spectrum3))
 
     # saving the image to a file (for testing)
     cv2.imwrite('temp.png', magnitude_spectrum)
@@ -108,35 +118,66 @@ def frequency2():
     # read the image
     img = cv2.imread('temp2.png')
 
-    # convert the image to grayscale
-    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # # convert the image to grayscale
+    # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # seperating the image into channels
+    b, g, r = cv2.split(img)
+
+
 
     # since the image is the fourier spectrum, we use the radius and center to generate a mask in the image and set the other values to 0
-    rows, cols = img.shape
+    rows, cols, colours= img.shape
     crow, ccol = center
     mask = np.zeros((rows, cols), np.uint8)
     mask = cv2.circle(mask, (ccol, crow), radius, 1, -1)
+    # stacking the mask to the number of channels
+    mask = np.dstack((mask, mask, mask))
+
     if inverse == "True":
         mask = 1 - mask
 
+    # generating the fourier spectrum of the image for all the channels seperately
+    f1 = np.fft.fft2(b)
+    fshift1 = np.fft.fftshift(f1)
 
-    # generating the fourier spectrum of the image
-    f = np.fft.fft2(img)
-    fshift = np.fft.fftshift(f)
+    f2 = np.fft.fft2(g)
+    fshift2 = np.fft.fftshift(f2)
+
+    f3 = np.fft.fft2(r)
+    fshift3 = np.fft.fftshift(f3)
 
     # applying the mask to the generated fourier spectrum
-    fshift = fshift * mask
+    fshift1 = fshift1 * mask[:,:,0]
+    fshift2 = fshift2 * mask[:,:,1]
+    fshift3 = fshift3 * mask[:,:,2]
 
-    # taking magnitude spectrum
-    magnitude_spectrum = 20*np.log(np.abs(fshift))
+
+    # taking magnitude spectrum for all the channels seperately
+    magnitude_spectrum1 = 20*np.log(np.abs(fshift1))
+    magnitude_spectrum2 = 20*np.log(np.abs(fshift2))
+    magnitude_spectrum3 = 20*np.log(np.abs(fshift3))
+
+    # merging the channels back
+    magnitude_spectrum = cv2.merge((magnitude_spectrum1, magnitude_spectrum2, magnitude_spectrum3))
 
     # saving the image to a file (for testing)
     cv2.imwrite('temp2.png', magnitude_spectrum)
 
-    # # performing inverse fourier transform to get the image back
-    img_back = np.fft.ifftshift(fshift)
-    img_back = np.fft.ifft2(img_back)
-    img_back = np.abs(img_back)
+    # # performing inverse fourier transform for all the channels seperately
+    f_ishift1 = np.fft.ifftshift(fshift1)
+    img_back1 = np.fft.ifft2(f_ishift1)
+    img_back1 = np.abs(img_back1)
+
+    f_ishift2 = np.fft.ifftshift(fshift2)
+    img_back2 = np.fft.ifft2(f_ishift2)
+    img_back2 = np.abs(img_back2)
+
+    f_ishift3 = np.fft.ifftshift(fshift3)
+    img_back3 = np.fft.ifft2(f_ishift3)
+    img_back3 = np.abs(img_back3)
+
+    # merging the channels back
+    img_back = cv2.merge((img_back1, img_back2, img_back3))
 
 
     # saving the image to a file (for testing)
