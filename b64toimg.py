@@ -9,3 +9,4 @@ with open('image.txt', 'rb') as f:
     # saving the image to a file (for testing)
     with open('b64toimg.png', 'wb') as f:
         f.write(buffer)
+
