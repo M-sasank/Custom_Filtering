@@ -5,9 +5,6 @@ import cv2
 
 app = Flask(__name__)
 
-@app.route('/')
-def hello_world():  # put application's code here
-    return 'Hello World!'
 
 @app.route('/spatial', methods=['POST'])
 def convolve():
@@ -21,11 +18,11 @@ def convolve():
     image = base64.b64decode(image)
 
     # saving the image to a file (for processing)
-    with open('temp.png', 'wb') as f:
+    with open('Temp Images/temp1.png', 'wb') as f:
         f.write(image)
 
     # read the image
-    img = cv2.imread('temp.png')
+    img = cv2.imread('Temp Images/temp1.png')
 
     # convert the kernel to a numpy array
     kernel = np.array(kernel)
@@ -34,10 +31,10 @@ def convolve():
     img = cv2.filter2D(img, -1, kernel)
 
     # saving the image to a file (for testing)
-    cv2.imwrite('temp.png', img)
+    cv2.imwrite('Temp Images/temp2.png', img)
 
     # sending the image back
-    with open('temp.png', 'rb') as f:
+    with open('Temp Images/temp2.png', 'rb') as f:
         b64_bytes = f.read()
         return jsonify({'image': base64.b64encode(b64_bytes).decode('utf-8')})
 
@@ -52,11 +49,11 @@ def frequency1():
     image = base64.b64decode(image)
 
     # saving the image to a file (for processing)
-    with open('temp.png', 'wb') as f:
+    with open('Temp Images/temp3.png', 'wb') as f:
         f.write(image)
 
     # read the image
-    img = cv2.imread('temp.png')
+    img = cv2.imread('Temp Images/temp3.png')
 
     # # convert the image to grayscale
     # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -84,14 +81,14 @@ def frequency1():
     magnitude_spectrum = cv2.merge((magnitude_spectrum1, magnitude_spectrum2, magnitude_spectrum3))
 
     # saving the image to a file (for testing)
-    cv2.imwrite('temp.png', magnitude_spectrum)
+    cv2.imwrite('Temp Images/temp4.png', magnitude_spectrum)
 
     # read the image
-    img = cv2.imread('temp.png')
+    img = cv2.imread('Temp Images/temp4.png')
 
 
     # sending the image back to the client
-    with open('temp.png', 'rb') as f:
+    with open('Temp Images/temp4.png', 'rb') as f:
         b64_bytes = f.read()
         return jsonify({'image': base64.b64encode(b64_bytes).decode('utf-8')})
 
@@ -112,11 +109,11 @@ def frequency2():
     image = base64.b64decode(image)
 
     # saving the image to a file (for processing)
-    with open('temp2.png', 'wb') as f:
+    with open('Temp Images/temp5.png', 'wb') as f:
         f.write(image)
 
     # read the image
-    img = cv2.imread('temp2.png')
+    img = cv2.imread('Temp Images/temp5.png')
 
     # # convert the image to grayscale
     # img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
@@ -161,7 +158,7 @@ def frequency2():
     magnitude_spectrum = cv2.merge((magnitude_spectrum1, magnitude_spectrum2, magnitude_spectrum3))
 
     # saving the image to a file (for testing)
-    cv2.imwrite('temp2.png', magnitude_spectrum)
+    cv2.imwrite('Temp Images/temp6.png', magnitude_spectrum)
 
     # # performing inverse fourier transform for all the channels seperately
     f_ishift1 = np.fft.ifftshift(fshift1)
@@ -181,12 +178,15 @@ def frequency2():
 
 
     # saving the image to a file (for testing)
-    cv2.imwrite('temp3.png', img_back)
+    cv2.imwrite('Temp Images/temp7.png', img_back)
 
     # sending the image back to the client
-    with open('temp3.png', 'rb') as f:
+    with open('Temp Images/temp7.png', 'rb') as f:
         b64_bytes = f.read()
-        return jsonify({'image': base64.b64encode(b64_bytes).decode('utf-8')})
+        # sending temp6.png because it is the selected spectrum imag
+        with open('Temp Images/temp6.png', 'rb') as f:
+            b64_bytes2 = f.read()
+            return jsonify({'image': base64.b64encode(b64_bytes).decode('utf-8'), 'spectrum': base64.b64encode(b64_bytes2).decode('utf-8')})
 
 
 if __name__ == '__main__':
