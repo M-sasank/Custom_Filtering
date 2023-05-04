@@ -2,7 +2,7 @@ import base64
 import cv2
 
 # read the image
-img = cv2.imread('Lena.png')
+img = cv2.imread('temp.png')
 
 # encode the image
 _, buffer = cv2.imencode('.png', img)
