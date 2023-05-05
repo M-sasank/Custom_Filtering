@@ -36,3 +36,8 @@
     transform: rotate(360deg);
   }
 }
+
+/*//change the background of class dot if option-1 label is checked*/
+.option-1:checked ~ .dot {
+  background-color: #2196f3;
+}
