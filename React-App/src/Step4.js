@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 
 function Step4({ filterSize, onGridValueChange, gridValues, nextStep }) {
   const [isIncrementMode, setIsIncrementMode] = useState(true);
-  const [grid, setGrid] = useState(gridValues);
+  let [grid, setGrid] = useState(gridValues);
 
   const handleIncrementDecrementClick = () => {
     setIsIncrementMode(!isIncrementMode);
@@ -15,7 +15,16 @@ function Step4({ filterSize, onGridValueChange, gridValues, nextStep }) {
     } else {
       newGridValues[index]--;
     }
+    //console.log(newGridValues);
     setGrid(newGridValues);
+    //console.log(index, grid);
+    // console.log(gridValues);
+    // newGridValues = [...gridValues];
+    // if (increment) {
+    //   newGridValues[index]++;
+    // } else {
+    //   newGridValues[index]--;
+    // }
     onGridValueChange(newGridValues);
   }
 
