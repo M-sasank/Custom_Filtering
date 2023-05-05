@@ -13,7 +13,7 @@ function App() {
   const [filterSize, setFilterSize] = useState(null);
   const [circleRadius, setCircleRadius] = useState(50);
   const [gridValues, setGridValues] = useState(Array(9).fill(0));
-  const [filteredImage, setFilteredImage] = useState(null);
+  const [resultImage, setResultImage] = useState({});
 //   const [imgfeatures, setImgfeatures] = useState({w:0, h:0});
   const [center, setCenter] = useState([0,0]);
   const [isInverse, setIsInverse] = useState(false);
@@ -64,6 +64,15 @@ function App() {
     return url;
   }
 
+  function saveResponse(result) {
+    console.log(result);
+    // store it to local storage
+    localStorage.setItem('result', JSON.stringify(result));
+
+    // set the image to the state variable
+    setResultImage(JSON.parse(localStorage.getItem('result')));
+  }
+
   function getFilteredImage() {
     // Send the form data to the API and retrieve the filtered image
     // Set the filtered image to the state variable
@@ -75,6 +84,7 @@ function App() {
             }
         // store the image in the data object
         const data = {image: imageToBase64(image), kernel: grid};
+        console.log(data);
         var myHeaders = new Headers();
         myHeaders.append("Content-Type", "application/json");
         var raw = JSON.stringify(data);
@@ -86,7 +96,7 @@ function App() {
         };
         var response = fetch("http://127.0.0.1:5000/spatial", requestOptions)
         .then(response => response.json())
-        .then(result => setFilteredImage(result.image))
+        .then(result => saveResponse(result))
         .catch(error => console.log('error', error));
     }
     else{
@@ -102,7 +112,7 @@ function App() {
         };
         var response = fetch("http://127.0.0.1:5000/frequency2", requestOptions)
         .then(response => response.json())
-        .then(result => setFilteredImage(result.image))
+        .then(result => saveResponse(result))
         .catch(error => console.log('error', error));
 
     }
@@ -113,13 +123,17 @@ function App() {
     setCircleRadius(value);
   }
 
-  const handleGridValueChange = (index, value) => {
-    const newValues = [...gridValues];
-    newValues[index] = value;
-    setGridValues(newValues);
+  const handleGridValueChange = (gridValues) => {
+    //const newValues = [...gridValues];
+    //console.log(gridValues);
+    // save the grid values to the local storage
+    localStorage.setItem('gridValues', JSON.stringify(gridValues));
   }
 
     const goToStep5 = () => {
+        //console.log("go to step 5");
+        setGridValues(JSON.parse(localStorage.getItem('gridValues')));
+        //console.log(gridValues);
         setStep(5);
     }
 
@@ -137,7 +151,7 @@ function App() {
     setFilterSize(null);
     setCircleRadius(50);
     setGridValues(Array(9).fill(0));
-    setFilteredImage(null);
+    setResultImage({});
   }
 
   switch (step) {
@@ -176,8 +190,10 @@ function App() {
     case 6:
       return (
         <Result
-          filteredImage={filteredImage}
+          original={imageToBase64(image)}
+          getfilteredImage={resultImage}
           onTryAgain={handleTryAgain}
+          filterType={filterType}
         />
       );
     default:
