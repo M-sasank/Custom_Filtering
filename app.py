@@ -1,9 +1,11 @@
 import base64
 from flask import Flask, request, jsonify, make_response
+from flask_cors import CORS
 import numpy as np
 import cv2
 
 app = Flask(__name__)
+CORS(app)
 
 
 @app.route('/spatial', methods=['POST'])
@@ -38,6 +40,7 @@ def convolve():
         b64_bytes = f.read()
         return jsonify({'image': base64.b64encode(b64_bytes).decode('utf-8')})
 
+
 @app.route('/frequency1', methods=['POST'])
 def frequency1():
     # get the image from the request
@@ -61,7 +64,6 @@ def frequency1():
     # seperating the image into channels
     b, g, r = cv2.split(img)
 
-
     # generating the fourier spectrum of the image for all the channels seperately
     f1 = np.fft.fft2(b)
     fshift1 = np.fft.fftshift(f1)
@@ -73,9 +75,9 @@ def frequency1():
     fshift3 = np.fft.fftshift(f3)
 
     # taking magnitude spectrum for all the channels seperately
-    magnitude_spectrum1 = 20*np.log(np.abs(fshift1))
-    magnitude_spectrum2 = 20*np.log(np.abs(fshift2))
-    magnitude_spectrum3 = 20*np.log(np.abs(fshift3))
+    magnitude_spectrum1 = 20 * np.log(np.abs(fshift1))
+    magnitude_spectrum2 = 20 * np.log(np.abs(fshift2))
+    magnitude_spectrum3 = 20 * np.log(np.abs(fshift3))
 
     # merging the channels back
     magnitude_spectrum = cv2.merge((magnitude_spectrum1, magnitude_spectrum2, magnitude_spectrum3))
@@ -86,21 +88,21 @@ def frequency1():
     # read the image
     img = cv2.imread('Temp Images/temp4.png')
 
-
     # sending the image back to the client
     with open('Temp Images/temp4.png', 'rb') as f:
         b64_bytes = f.read()
         return jsonify({'image': base64.b64encode(b64_bytes).decode('utf-8')})
+
 
 @app.route('/frequency2', methods=['POST'])
 def frequency2():
     # getting the radius and center from the request
     data = request.get_json()
 
-    radius = data['radius']
+    radius = int(data['radius'])
     center = data['center']
+    print(radius, center)
     inverse = data['inverse']
-
 
     # getting the image from the request
     image = data['image']
@@ -120,13 +122,12 @@ def frequency2():
     # seperating the image into channels
     b, g, r = cv2.split(img)
 
-
-
     # since the image is the fourier spectrum, we use the radius and center to generate a mask in the image and set the other values to 0
-    rows, cols, colours= img.shape
-    crow, ccol = center
+    rows, cols, colours = img.shape
+    ccol,crow = center
     mask = np.zeros((rows, cols), np.uint8)
     mask = cv2.circle(mask, (ccol, crow), radius, 1, -1)
+
     # stacking the mask to the number of channels
     mask = np.dstack((mask, mask, mask))
 
@@ -144,15 +145,14 @@ def frequency2():
     fshift3 = np.fft.fftshift(f3)
 
     # applying the mask to the generated fourier spectrum
-    fshift1 = fshift1 * mask[:,:,0]
-    fshift2 = fshift2 * mask[:,:,1]
-    fshift3 = fshift3 * mask[:,:,2]
-
+    fshift1 = fshift1 * mask[:, :, 0]
+    fshift2 = fshift2 * mask[:, :, 1]
+    fshift3 = fshift3 * mask[:, :, 2]
 
     # taking magnitude spectrum for all the channels seperately
-    magnitude_spectrum1 = 20*np.log(np.abs(fshift1))
-    magnitude_spectrum2 = 20*np.log(np.abs(fshift2))
-    magnitude_spectrum3 = 20*np.log(np.abs(fshift3))
+    magnitude_spectrum1 = 20 * np.log(np.abs(fshift1))
+    magnitude_spectrum2 = 20 * np.log(np.abs(fshift2))
+    magnitude_spectrum3 = 20 * np.log(np.abs(fshift3))
 
     # merging the channels back
     magnitude_spectrum = cv2.merge((magnitude_spectrum1, magnitude_spectrum2, magnitude_spectrum3))
@@ -176,7 +176,6 @@ def frequency2():
     # merging the channels back
     img_back = cv2.merge((img_back1, img_back2, img_back3))
 
-
     # saving the image to a file (for testing)
     cv2.imwrite('Temp Images/temp7.png', img_back)
 
@@ -186,7 +185,8 @@ def frequency2():
         # sending temp6.png because it is the selected spectrum imag
         with open('Temp Images/temp6.png', 'rb') as f:
             b64_bytes2 = f.read()
-            return jsonify({'image': base64.b64encode(b64_bytes).decode('utf-8'), 'spectrum': base64.b64encode(b64_bytes2).decode('utf-8')})
+            return jsonify({'image': base64.b64encode(b64_bytes).decode('utf-8'),
+                            'spectrum': base64.b64encode(b64_bytes2).decode('utf-8')})
 
 
 if __name__ == '__main__':
