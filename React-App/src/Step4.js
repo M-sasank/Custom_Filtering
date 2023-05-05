@@ -83,7 +83,7 @@ function Step4({ filterSize, onGridValueChange, gridValues, nextStep }) {
       {renderGrid()}
       <div style={{ marginTop: '20px' }}>
         <button onClick={handleIncrementDecrementClick}>
-          {isIncrementMode ? 'Increment' : 'Decrement'}
+          {isIncrementMode ? 'Decrement' : 'Increment'}
         </button>
         <button onClick={nextStep}>Next</button>
       </div>

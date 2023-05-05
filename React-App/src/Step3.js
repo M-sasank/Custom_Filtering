@@ -191,14 +191,16 @@ function Step3({ filterType, onFilterSizeSelect, onCircleRadiusChange, circleRad
           </div>
       )}
       <button onClick={handleNextClick}>Next</button>
-      <label>
-        <input
-          type="checkbox"
-          checked={isPropertyTrue}
-          onChange={handleCheckboxChange}
-        />
-        Inverse
-      </label>
+      {filterType === 'frequency' && (
+        <label>
+          <input
+            type="checkbox"
+            checked={isPropertyTrue}
+            onChange={handleCheckboxChange}
+          />
+          Inverse
+        </label>
+      )}
     </div>
   ); 
 }
