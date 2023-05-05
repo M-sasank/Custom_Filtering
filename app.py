@@ -99,7 +99,7 @@ def frequency2():
     # getting the radius and center from the request
     data = request.get_json()
 
-    radius = data['radius']
+    radius = int(data['radius'])
     center = data['center']
     inverse = data['inverse']
 
